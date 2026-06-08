@@ -2,56 +2,62 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Dango Clock - Hệ Lai 12h</title>
+    <title>Dango Clock - 24h/12h Mode</title>
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #fcf5e5; font-family: sans-serif; }
-        #clock { width: 300px; height: 300px; border: 10px solid #333; border-radius: 50%; position: relative; background: white; }
+        body { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background-color: #fcf5e5; font-family: sans-serif; }
+        #clock { width: 300px; height: 300px; border: 10px solid #333; border-radius: 50%; position: relative; background: white; margin-bottom: 20px; }
         .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: #333; border-radius: 5px; }
         #hourHand { width: 6px; height: 80px; margin-left: -3px; }
         #minuteHand { width: 4px; height: 110px; margin-left: -2px; background: red; }
         .number { position: absolute; width: 100%; height: 100%; text-align: center; font-weight: bold; padding-top: 10px; }
+        #info { text-align: center; color: #555; }
     </style>
 </head>
 <body>
 
 <div id="clock">
-    <div class="number" style="transform: rotate(30deg)">1</div>
-    <div class="number" style="transform: rotate(60deg)">2</div>
-    <div class="number" style="transform: rotate(90deg)">3</div>
-    <div class="number" style="transform: rotate(120deg)">4</div>
-    <div class="number" style="transform: rotate(150deg)">5</div>
-    <div class="number" style="transform: rotate(180deg)">6</div>
-    <div class="number" style="transform: rotate(210deg)">7</div>
-    <div class="number" style="transform: rotate(240deg)">8</div>
-    <div class="number" style="transform: rotate(270deg)">9</div>
-    <div class="number" style="transform: rotate(300deg)">10</div>
-    <div class="number" style="transform: rotate(330deg)">11</div>
-    <div class="number" style="transform: rotate(0deg)">12</div>
-
+    <script>
+        for(let i=1; i<=12; i++) {
+            document.write(`<div class="number" style="transform: rotate(${i*30}deg)">${i}</div>`);
+        }
+    </script>
     <div id="hourHand" class="hand"></div>
     <div id="minuteHand" class="hand"></div>
+</div>
+
+<div id="info">
+    <div id="calendar">Đang tải lịch...</div>
+    <div id="dangoTime" style="font-weight: bold; color: #d35400; font-size: 1.2em;">00:00:00</div>
 </div>
 
 <script>
     function updateClock() {
         const now = new Date();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-
-        // LOGIC CỦA BẠN: 24h = 12h trên mặt số -> tốc độ 0.5
-        // Kim giờ: mỗi giờ thực tế đi được 15 độ (360/24)
-        const hourAngle = (hours * 15) + (minutes * 0.25) + (seconds * 0.00416);
         
-        // Kim phút: quay bình thường theo phút thực tế
-        const minuteAngle = minutes * 6;
+        // --- 1. Logic thời gian Dango (nén 0.5) ---
+        const totalHours = now.getHours() + (now.getMinutes() / 60) + (now.getSeconds() / 3600);
+        const dangoTotal = totalHours / 2; // Hệ 12h cho 24h thực
+        
+        // Tính giờ, phút, giây Dango dạng xx:xx:xx
+        const dH = Math.floor(dangoTotal);
+        const dM = Math.floor((dangoTotal * 60) % 60);
+        const dS = Math.floor((dangoTotal * 3600) % 60);
+        
+        const pad = (n) => n.toString().padStart(2, '0');
+        document.getElementById('dangoTime').innerText = `Giờ Dango: ${pad(dH)}:${pad(dM)}:${pad(dS)}`;
 
+        // --- 2. Kim đồng hồ ---
+        const hourAngle = (totalHours * 15); // 360 / 24 = 15 độ/giờ
+        const minuteAngle = now.getMinutes() * 6;
         document.getElementById('hourHand').style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
         document.getElementById('minuteHand').style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+        
+        // --- 3. Lịch giả lập (Bạn có thể tích hợp thư viện lịch âm vào đây) ---
+        document.getElementById('calendar').innerText = 
+            `Dương: ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()} | Âm lịch: 13/5 Ất Tỵ`;
     }
     setInterval(updateClock, 1000);
     updateClock();
 </script>
-
 </body>
 </html>

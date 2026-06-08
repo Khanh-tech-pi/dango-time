@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #fdf5e6; font-family: sans-serif; }
+    .clock-face { width: 250px; height: 250px; border: 8px solid #333; border-radius: 50%; position: relative; background: #fff; margin-bottom: 20px; }
+    .hand { position: absolute; bottom: 50%; left: 50%; transform-origin: bottom; background: #333; border-radius: 4px; }
+    .hour-hand { width: 6px; height: 60px; margin-left: -3px; }
+    .min-hand { width: 4px; height: 90px; margin-left: -2px; background: #555; }
+    .sec-hand { width: 2px; height: 110px; margin-left: -1px; background: #d00; }
+    .number { position: absolute; width: 30px; height: 30px; text-align: center; font-weight: bold; font-size: 1.2rem; }
+    .info { text-align: center; font-size: 1.2rem; color: #444; }
+</style>
+</head>
+<body>
+
+    <div class="clock-face" id="clock">
+        <div id="hourHand" class="hand hour-hand"></div>
+        <div id="minHand" class="hand min-hand"></div>
+        <div id="secHand" class="hand sec-hand"></div>
+    </div>
+    
+    <div class="info">
+        <div id="dateStr">Dương: 08/06/2026</div>
+        <div id="lunarStr">Âm lịch: 13/5 Ất Tỵ</div>
+        <div id="dangoStr" style="font-weight:bold; color: #d2691e;">Giờ Dango: 0.0000</div>
+    </div>
+
+    <script>
+        const clock = document.getElementById('clock');
+        // Tạo các số từ 1 đến 10
+        for (let i = 1; i <= 10; i++) {
+            const num = document.createElement('div');
+            num.classList.add('number');
+            num.innerText = i;
+            const angle = (i * 36) * (Math.PI / 180);
+            num.style.left = (125 + 100 * Math.sin(angle) - 15) + 'px';
+            num.style.top = (125 - 100 * Math.cos(angle) - 15) + 'px';
+            clock.appendChild(num);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const ms = now.getHours() * 3600000 + now.getMinutes() * 60000 + now.getSeconds() * 1000 + now.getMilliseconds();
+            
+            // Tính toán Dango
+            const totalDango = (ms / 86400000) * 10;
+            const hourDango = totalDango;
+            const minDango = (totalDango * 10) % 10;
+            const secDango = (totalDango * 1000) % 100;
+            
+            // Xoay kim
+            document.getElementById('hourHand').style.transform = `rotate(${hourDango * 36}deg)`;
+            document.getElementById('minHand').style.transform = `rotate(${minDango * 36}deg)`;
+            document.getElementById('secHand').style.transform = `rotate(${secDango * 3.6}deg)`;
+            
+            // Cập nhật text
+            document.getElementById('dangoStr').innerText = `Giờ Dango: ${hourDango.toFixed(4)}`;
+            
+            requestAnimationFrame(updateClock);
+        }
+        
+        requestAnimationFrame(updateClock);
+    </script>
+</body>
+</html>
